@@ -140,11 +140,13 @@ int main(int argc, char** argv)
 	}
 	lastTicks = SDL_GetTicks();
 	quit = 0;
+	gameInit();
 	while (!quit)
 	{
 		ticks = SDL_GetTicks();
 		my_main(&quit, ticks - lastTicks);
 		lastTicks = ticks;
 	}
+	gameClose();
 	return 0;
 }

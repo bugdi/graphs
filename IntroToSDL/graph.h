@@ -1,7 +1,11 @@
 #pragma once
 
+#define GRAPH_WEIGHTED 1
+#define GRAPH_DIRECTED 2
+
 struct {
-	int num;
+	int x;
+	int y;
 } typedef Vertex;
 
 struct {
@@ -10,11 +14,15 @@ struct {
 	int weight;
 } typedef Edge;
 
+
 struct {
-	int numberOfVertexes;
+	int numberOfVertices;
+	int numberOfEdges;
+	Vertex* vertices;
 	Edge* edges;
+	int flags;
 } typedef Graph;
 
-Graph createGraph(int numVertex, Edge* edges);
+Graph* create_graph(int numOfVertices, int numOfEdges, int flags, ...);
 
-Edge* createEdges(int a, ...);
+void destroy_graph(Graph* graph);

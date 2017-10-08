@@ -6,6 +6,8 @@
 
 extern SDL_Renderer* gRenderer;
 void draw();
+void gameInit();
+void gameClose();
 void update(SDL_Event e, int ticks);
 
 
