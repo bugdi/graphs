@@ -1,9 +1,9 @@
 #include "draw.h"
 #include "loop.h"
 
-void fill_circle(SDL_Point center, int radius, SDL_Color color)
+void fill_circle(int x, int y, int radius, int r, int g, int b, int a)
 {
-	SDL_SetRenderDrawColor(gRenderer, color.r, color.g, color.b, color.a);
+	SDL_SetRenderDrawColor(gRenderer, r, g, b, a);
 	for (int w = 0; w < radius * 2; w++)
 	{
 		for (int h = 0; h < radius * 2; h++)
@@ -12,7 +12,7 @@ void fill_circle(SDL_Point center, int radius, SDL_Color color)
 			int dy = radius - h; // vertical offset
 			if ((dx*dx + dy*dy) <= (radius * radius))
 			{
-				SDL_RenderDrawPoint(gRenderer, center.x + dx, center.y + dy);
+				SDL_RenderDrawPoint(gRenderer, x + dx, y + dy);
 			}
 		}
 	}

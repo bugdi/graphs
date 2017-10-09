@@ -26,3 +26,9 @@ struct {
 Graph* create_graph(int numOfVertices, int numOfEdges, int flags, ...);
 
 void destroy_graph(Graph* graph);
+
+void append_vertex(Graph* graph, int x, int y);
+
+void append_edge(Graph* graph, int v1, int v2);
+
+void delete_edge(Graph* graph, int edge);

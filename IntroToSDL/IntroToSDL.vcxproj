@@ -82,7 +82,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -124,12 +124,14 @@
     <ClCompile Include="loop.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="textures.c" />
+    <ClCompile Include="vector_math.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h" />
     <ClInclude Include="graph.h" />
     <ClInclude Include="loop.h" />
     <ClInclude Include="textures.h" />
+    <ClInclude Include="vector_math.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

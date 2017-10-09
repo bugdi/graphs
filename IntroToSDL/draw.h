@@ -5,6 +5,6 @@
 #include <SDL.h>
 
 void draw_circle(int x0, int y0, int radius);
-void fill_circle(SDL_Point center, int radius, SDL_Color color);
+void fill_circle(int x, int y, int radius, int r, int g, int b, int a);
 
 #endif
