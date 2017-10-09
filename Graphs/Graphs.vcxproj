@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{95B0A6C7-EB4F-48B6-B94C-2F336FC3210A}</ProjectGuid>
+    <ProjectGuid>{1BA5F937-3417-43A5-BC32-CCBE2A1813A5}</ProjectGuid>
     <RootNamespace>IntroToSDL</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
     <ProjectName>Graphs</ProjectName>
