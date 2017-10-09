@@ -32,3 +32,5 @@ void append_vertex(Graph* graph, int x, int y);
 void append_edge(Graph* graph, int v1, int v2);
 
 void delete_edge(Graph* graph, int edge);
+
+void delete_vertex(Graph* graph, int vertex);

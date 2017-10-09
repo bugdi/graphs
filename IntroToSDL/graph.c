@@ -122,3 +122,49 @@ void delete_edge(Graph* graph, int edge)
 	free(graph->edges);
 	graph->edges = new_edges;
 }
+
+void delete_edges_of_vertex(Graph* graph, int vertex)
+{
+	int i;
+
+	for (i = 0; i < graph->numberOfEdges; i++)
+	{
+		if (graph->edges[i].v1 == vertex || graph->edges[i].v2 == vertex)
+		{
+			delete_edge(graph, i);
+			i = -1;
+		}
+	}
+}
+
+void delete_vertex(Graph* graph, int vertex)
+{
+	delete_edges_of_vertex(graph, vertex);
+	int i, j, n = 0;
+	Vertex* new_vertices = malloc(sizeof(Vertex) * (graph->numberOfVertices - 1));
+
+	for (i = 0; i < graph->numberOfVertices; i++)
+	{
+		if (i != vertex)
+		{
+			new_vertices[n++] = graph->vertices[i];
+		}	
+		if (n - 1 != i)
+		{
+			for (j = 0; j < graph->numberOfEdges; j++)
+			{
+				if (graph->edges[j].v1 == i ) {
+					graph->edges[j].v1 = n - 1;
+				}
+				else if (graph->edges[j].v2 == i) {
+					graph->edges[j].v2 = n - 1;
+				}
+			}
+		}
+	}
+
+	graph->numberOfVertices--;
+
+	free(graph->vertices);
+	graph->vertices = new_vertices;
+}

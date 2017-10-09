@@ -138,17 +138,22 @@ void update(SDL_Event e, int ticks)
 	//Vector2d projA, projB;
 
 	//move
-	if (e.button.button == SDL_BUTTON_LEFT)
-	{
-		if (e.type == SDL_MOUSEBUTTONDOWN)
-		{
-			if (e.button.clicks == 1)
-			{
+	if (e.button.button == SDL_BUTTON_LEFT) {
+		if (e.type == SDL_MOUSEBUTTONDOWN) {
+			if (e.button.clicks == 1) {
 				selectedVertex = get_vertex_at(e.button.x, e.button.y);
 				action = (selectedVertex == -1) ? 0 : 1;
 			}
 			else if(e.button.clicks == 2) {
-				append_vertex(gGraph, e.button.x, e.button.y);
+				selectedVertex = get_vertex_at(e.button.x, e.button.y);
+				if (selectedVertex == -1)
+				{
+					append_vertex(gGraph, e.button.x, e.button.y);
+				}
+				else
+				{
+					delete_vertex(gGraph, selectedVertex);
+				}
 			}
 			
 		}
@@ -200,6 +205,7 @@ void update(SDL_Event e, int ticks)
 					if (is_between(tX1, 0, 1) && is_between(tY1, 0, 1) && is_between(tX2, 0, 1) && is_between(tY2, 0, 1))
 					{
 						delete_edge(gGraph, i);
+						i = 0;
 						//break;
 					}
 				}
