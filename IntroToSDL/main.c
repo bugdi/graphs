@@ -1,47 +1,55 @@
 #include <SDL.h>
 #include <stdio.h>
 #include <SDL_image.h>
+#include <SDL_syswm.h>
 
 
-
+#include "window.h"
 #include "loop.h"
 #include "textures.h"
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
-#define EXIT_SUCCESS 1;
-#define EXIT_FAILURE 0;
+#define TRUE 1;
+#define FALSE 0;
 
-SDL_Window* gWindow = NULL;
+
 SDL_Surface* gScreenSurface = NULL;
 
 
 
 int init()
 {
+	
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-		return EXIT_FAILURE;
+		return FALSE;
 	}
 	else
 	{
 		//Create window
-		gWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+		SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+		gWindow = SDL_CreateWindow("New - Graphs", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, /*SDL_WINDOW_SHOWN*/ NULL);
 		if (gWindow == NULL)
 		{
 			printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
-			return EXIT_FAILURE;
+			return FALSE;
 		}
 		else
 		{
+			//if (!init_window(gWindow))
+			//{
+				//return FALSE;
+			//}
+			//SDL_ShowWindow(gWindow);
 			//Create renderer for window
 			gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
 			if (gRenderer == NULL)
 			{
 				printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
-				return EXIT_FAILURE;
+				return FALSE;
 			}
 				//Initialize renderer color
 			SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -51,18 +59,18 @@ int init()
 			if (!(IMG_Init(imgFlags) & imgFlags))
 			{
 				printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
-				return EXIT_FAILURE;
+				return FALSE;
 			}
 		}
 	}
 
-	return EXIT_SUCCESS;
+	return TRUE;
 }
 
 int loadMedia()
 {
 	//texture = loadTexture(gRenderer, "C:\\Users\\Marci\\source\\repos\\IntroToSDL\\redball.png");
-	return EXIT_SUCCESS;
+	return TRUE;
 }
 
 SDL_Surface* loadSurface(const char* path)
@@ -108,12 +116,26 @@ void close()
 int my_main(int* quit, int ticks)
 {
 	SDL_Event e;
+	//e.type = SDL_CREATE
 	while (SDL_PollEvent(&e) != 0)
 	{
 		//User requests quit
 		if (e.type == SDL_QUIT)
 		{
 			*quit = 1;
+		}
+		else if (e.type == SDL_SYSWMEVENT) {
+			switch (e.syswm.msg->msg.win.msg)
+			{
+				case WM_CREATE: 
+					create_menu(e.syswm.msg->msg.win.hwnd);
+					break;
+
+				case WM_COMMAND:
+					window_command(e.syswm.msg->msg.win.hwnd, LOWORD(e.syswm.msg->msg.win.wParam));
+					break;
+			}
+	
 		}
 		else {
 			update(e, ticks);
@@ -131,12 +153,12 @@ int main(int argc, char** argv)
 	if (!init())
 	{
 		printf("Failed to initialize!\n");
-		return EXIT_FAILURE;
+		return FALSE;
 	}
 	if (!loadMedia())
 	{
 		printf("Failed to load media!\n");
-		return EXIT_FAILURE;
+		return FALSE;
 	}
 	lastTicks = SDL_GetTicks();
 	quit = 0;
@@ -147,6 +169,7 @@ int main(int argc, char** argv)
 		my_main(&quit, ticks - lastTicks);
 		lastTicks = ticks;
 	}
+	
 	gameClose();
 	return 0;
 }

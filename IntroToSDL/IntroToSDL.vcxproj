@@ -120,19 +120,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="algorithms.c" />
     <ClCompile Include="draw.c" />
+    <ClCompile Include="file.c" />
     <ClCompile Include="graph.c" />
     <ClCompile Include="loop.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="textures.c" />
     <ClCompile Include="vector_math.c" />
+    <ClCompile Include="window.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="algorithms.h" />
     <ClInclude Include="draw.h" />
+    <ClInclude Include="file.h" />
     <ClInclude Include="graph.h" />
     <ClInclude Include="loop.h" />
     <ClInclude Include="textures.h" />
     <ClInclude Include="vector_math.h" />
+    <ClInclude Include="window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

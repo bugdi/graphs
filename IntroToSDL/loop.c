@@ -1,10 +1,12 @@
 #include "loop.h"
 #include "draw.h"
-#include "graph.h"
+//#include "graph.h"
 #include "vector_math.h"
+#include "file.h"
 //#include <SDL.h>
 #define VERTEX_RADIUS 6.0
 
+SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
 Graph* gGraph = NULL;
 int selectedVertex = -1;
@@ -16,30 +18,12 @@ Vector2i mouseFrom;
 
 void gameInit()
 {
-
-	Vector2d intersect = intersect_lines(
-		0, 0, 
-		1, 1, 
-		
-		2, 0,
-		0, 2);
-
-	gGraph = create_graph(3, 3, NULL,
-		0, 1,
-		1, 2,
-		2, 0
-	);
-
-	gGraph->vertices[0].x = 40;
-	gGraph->vertices[0].y = 40;
-	gGraph->vertices[1].x = 80;
-	gGraph->vertices[1].y = 40;
-	gGraph->vertices[2].x = 80;
-	gGraph->vertices[2].y = 80;
-
+	gGraph = create_graph(0, 0, 0);
+	//gGraph = load_graph("output.gph");
 }
 void gameClose()
 {
+	save_graph(gGraph, "output.gph");
 	destroy_graph(gGraph);
 }
 Vector2i vertex_to_vector(Vertex v)

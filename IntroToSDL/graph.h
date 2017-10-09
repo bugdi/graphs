@@ -2,7 +2,6 @@
 
 #define GRAPH_WEIGHTED 1
 #define GRAPH_DIRECTED 2
-
 struct {
 	int x;
 	int y;
@@ -33,4 +32,4 @@ void append_edge(Graph* graph, int v1, int v2);
 
 void delete_edge(Graph* graph, int edge);
 
-void delete_vertex(Graph* graph, int vertex);
+void delete_vertex(Graph* graph, int i);
