@@ -1,6 +1,6 @@
 #include "textures.h"
 #include <stdio.h>
-#include <SDL_image.h>
+//#include <SDL_image.h>
 
 SDL_Texture* loadTexture(SDL_Renderer* renderer, const char* path)
 {

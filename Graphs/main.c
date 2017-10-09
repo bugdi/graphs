@@ -1,6 +1,6 @@
 #include <SDL.h>
 #include <stdio.h>
-#include <SDL_image.h>
+//#include <SDL_image.h>
 #include <SDL_syswm.h>
 
 
@@ -54,13 +54,7 @@ int init()
 				//Initialize renderer color
 			SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
-				//Initialize PNG loading
-			int imgFlags = IMG_INIT_PNG;
-			if (!(IMG_Init(imgFlags) & imgFlags))
-			{
-				printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
-				return FALSE;
-			}
+		
 		}
 	}
 
@@ -153,12 +147,12 @@ int main(int argc, char** argv)
 	if (!init())
 	{
 		printf("Failed to initialize!\n");
-		return FALSE;
+		return 1;
 	}
 	if (!loadMedia())
 	{
 		printf("Failed to load media!\n");
-		return FALSE;
+		return 1;
 	}
 	lastTicks = SDL_GetTicks();
 	quit = 0;
