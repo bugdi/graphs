@@ -23,7 +23,7 @@ void gameInit()
 }
 void gameClose()
 {
-	save_graph(gGraph, "output.gph");
+	//save_graph(gGraph, "output.gph");
 	destroy_graph(gGraph);
 }
 Vector2i vertex_to_vector(Vertex v)
