@@ -2,18 +2,20 @@
 #include <stdio.h>
 //#include <SDL_image.h>
 #include <SDL_syswm.h>
+#include "resource.h"
 
 
 #include "window.h"
 #include "loop.h"
+
 #include "textures.h"
+#include "draw.h"
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
 #define TRUE 1;
 #define FALSE 0;
-
 
 SDL_Surface* gScreenSurface = NULL;
 
@@ -39,12 +41,7 @@ int init()
 		}
 		else
 		{
-			//if (!init_window(gWindow))
-			//{
-				//return FALSE;
-			//}
-			//SDL_ShowWindow(gWindow);
-			//Create renderer for window
+
 			gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
 			if (gRenderer == NULL)
 			{
@@ -57,6 +54,8 @@ int init()
 		
 		}
 	}
+
+	load_global_font("E:\\Marci\\source\\repos\\IntroToSDL\\Debug\\font2.ttf");
 
 	return TRUE;
 }
@@ -119,6 +118,7 @@ int my_main(int* quit, int ticks)
 			*quit = 1;
 		}
 		else if (e.type == SDL_SYSWMEVENT) {
+			
 			switch (e.syswm.msg->msg.win.msg)
 			{
 				case WM_CREATE: 

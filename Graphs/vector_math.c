@@ -1,36 +1,7 @@
 #include "vector_math.h"
 #include <math.h>
 
-Vector2i vector_from_points(Vector2i v1, Vector2i v2)
-{
-	Vector2i vector = { v2.x - v1.x, v2.y - v1.y };
-	return vector;
-}
 
-double length(Vector2i a)
-{
-	return sqrt((double)(a.x * a.x) + (a.y * a.y));
-}
-
-int scalar_product(Vector2i a, Vector2i b)
-{
-	return (a.x * b.x) + (a.y * b.y);
-}
-
-Vector2d orthogonal_projection(Vector2i a, Vector2i b)
-{
-	Vector2d proj;
-	proj = multiply_with_scalar((double)scalar_product(a, b) / (length(b) * length(b)), b);
-	return proj;
-}
-
-Vector2d multiply_with_scalar(double scalar, Vector2i vector)
-{
-	Vector2d v = { vector.x, vector.y };
-	v.x *= scalar;
-	v.y *= scalar;
-	return v;
-}
 
 Vector2d intersect_lines(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
 {
@@ -50,6 +21,7 @@ Vector2d intersect_lines(int x1, int y1, int x2, int y2, int x3, int y3, int x4,
 
 	if (det == 0) {
 		//Lines are parallel
+		return vect;
 	}
 	else {
 		//double x = (B2*C1 - B1*C2) / det

@@ -1,5 +1,128 @@
 #include "draw.h"
 #include "loop.h"
+#include "SDL_ttf.h"
+#include "graph.h"
+
+TTF_Font* gFont;
+
+#define FONT_SIZE 18
+
+
+int load_global_font(const char* path)
+{
+	//SDL_Texture *texture;
+	if (TTF_Init() == -1)
+		return 0;
+
+	gFont = TTF_OpenFont(path, FONT_SIZE);
+	if (gFont == NULL)
+		return 0;
+}
+int create_edge_text_info()
+{
+	int i;
+	EdgeTextInfo* new_edge_info = malloc(sizeof(EdgeTextInfo) * (gGraph->numberOfEdges));
+
+	//*new_edges = *graph->edges;
+
+	for (i = 0; i < gGraph->numberOfEdges - 1; i++)
+	{
+		new_edge_info[i] = gGraph->edgeInfo[i];
+	}
+
+	if(gGraph->edgeInfo != NULL)
+		free(gGraph->edgeInfo);
+	gGraph->edgeInfo = new_edge_info;
+
+	gGraph->edgeInfo[gGraph->numberOfEdges - 1].texture = NULL;
+
+	update_edge_text_info(gGraph->numberOfEdges - 1);
+
+	return 1;
+}
+int update_all_edge_text_info()
+{
+	int i;
+
+	for (i = 0; i < gGraph->numberOfEdges; i++)
+	{
+		if (!update_edge_text_info(i))
+			return 0;
+	}
+	return 1;
+}
+int update_edge_text_info(int i)
+{
+	SDL_Color textColor = { 0, 0, 0 };
+	char buffer[5];
+
+	memset(buffer, 0, 5);
+	//SDL_itoa(gGraph->edges[i].weight, digit_buffer, 10);
+
+	sprintf_s(buffer, 5, "%d", gGraph->edges[i].weight);
+
+	gGraph->edgeInfo[i].length = strlen(buffer);
+
+	SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, buffer, textColor);
+
+	if (textSurface == NULL)
+		return 0;
+
+	if (gGraph->edgeInfo[i].texture != NULL)
+		SDL_DestroyTexture(gGraph->edgeInfo[i].texture);
+
+	gGraph->edgeInfo[i].texture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+
+	if (gGraph->edgeInfo[i].texture == NULL)
+		return 0;
+
+	gGraph->edgeInfo[i].rect.w = textSurface->w;
+	gGraph->edgeInfo[i].rect.h = textSurface->h;
+
+	SDL_FreeSurface(textSurface);
+
+
+
+	//SDL_RenderCopy(gRenderer, texture, NULL, &rect);
+
+	//SDL_DestroyTexture(texture);
+
+	return 1;
+}
+int create_text_texture(const char* text, SDL_Texture **texture, SDL_Rect* rect)
+{
+	
+}
+
+void draw_text(int x, int y, const char* text)
+{
+	//return;
+	int width, height;
+	SDL_Texture *texture;
+	SDL_Color textColor = { 0, 0, 0 };
+	SDL_Rect rect = { x, y, 0, 0 };
+
+	SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, text, textColor);
+
+	if (textSurface == NULL)
+		return 0;
+
+
+	texture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+
+	if (texture == NULL)
+		return 0;
+	rect.w = textSurface->w;
+	rect.h = textSurface->h;
+
+	SDL_FreeSurface(textSurface);
+
+	SDL_RenderCopy(gRenderer, texture, NULL, &rect);
+
+	SDL_DestroyTexture(texture);
+
+}
+
 
 void fill_circle(int x, int y, int radius, int r, int g, int b, int a)
 {
@@ -17,6 +140,7 @@ void fill_circle(int x, int y, int radius, int r, int g, int b, int a)
 		}
 	}
 }
+
 
 void draw_circle(int x0, int y0, int radius)
 {

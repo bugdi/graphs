@@ -3,14 +3,36 @@
 //#include "graph.h"
 #include "vector_math.h"
 #include "file.h"
+#include <string.h>
+#include <stdio.h>
+//#include <SDL_ttf.h>
 //#include <SDL.h>
 #define VERTEX_RADIUS 6.0
+#define WEIGHT_NUM_DIGITS 5
 
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
 Graph* gGraph = NULL;
 int selectedVertex = -1;
 int selectedEdge = -1;
+int lastAddedEdge = -1;
+int selectedVertexAlgorithm1;
+
+#define ACTION_NOTHING 0
+#define ACTION_GRAB_VERTEX 1
+#define ACTION_DRAW_EDGE 2
+#define ACTION_SELECT_EDGE 3
+#define ACTION_START_POINT 5
+
+/*
+	actions:
+		0: nothing
+		1: grab vertex
+		2: draw line
+		3: select edge ('cutting')
+		4: set weight (not used)
+		5: select startpoint for algorithm
+*/
 int action = 0;
 Vector2i mouse;
 Vector2i mouseFrom;
@@ -48,6 +70,11 @@ int is_between(double num, double min, double max)
 void draw()
 {
 	int i;
+	double middle_x;
+	double middle_y;
+	//double delta;
+	int length = 3;
+	//char digit_buffer[WEIGHT_NUM_DIGITS];
 	Vertex v1, v2;
 
 	SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF); //black
@@ -66,6 +93,19 @@ void draw()
 		else {
 			SDL_RenderDrawLine(gRenderer, v1.x, v1.y, v2.x, v2.y);
 		}
+		if (gGraph->flags & GRAPH_WEIGHTED )
+		{
+			middle_x = (v1.x + v2.x) / 2;
+			middle_y = (v1.y + v2.y) / 2;
+
+
+			gGraph->edgeInfo[i].rect.x = middle_x - (gGraph->edgeInfo[i].length - 1) * 18;
+			gGraph->edgeInfo[i].rect.y = middle_y - 20;
+			SDL_RenderCopy(gRenderer, gGraph->edgeInfo[i].texture, NULL, &gGraph->edgeInfo[i].rect);
+
+			
+			//draw_text(middle_x - (length - 1) * 18, middle_y - 20, digit_buffer);
+		}
 	}
 
 
@@ -81,7 +121,7 @@ void draw()
 		}
 	}
 
-	if (action == 2)
+	if (action == ACTION_DRAW_EDGE)
 	{
 		SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
 		SDL_RenderDrawLine(gRenderer, gGraph->vertices[selectedVertex].x, gGraph->vertices[selectedVertex].y, mouse.x, mouse.y);
@@ -110,25 +150,35 @@ Vector2d intersect_vertex_and_vector(Vertex a, Vertex b, Vector2i c, Vector2i d)
 	return intersect_lines(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y);
 }
 
+void update_weight(int input)
+{
+	if (selectedEdge != -1 && gGraph->edges[selectedEdge].weight < 1000)
+	{
+		gGraph->edges[selectedEdge].weight *= 10;
+		gGraph->edges[selectedEdge].weight += input;
+		update_edge_text_info(selectedEdge);
+	}
+}
+
 void update(SDL_Event e, int ticks)
 {
 	
 	int i;
 	int vertex;
-	Vector2i v_edge;
 	Vertex v1, v2;
 	Vector2d intersection;
 	double tX1, tY1, tX2, tY2;
-	//Vector2d projA, projB;
-
-	//move
-	if (e.button.button == SDL_BUTTON_LEFT) {
-		if (e.type == SDL_MOUSEBUTTONDOWN) {
-			if (e.button.clicks == 1) {
+	if (e.button.button == SDL_BUTTON_LEFT)
+	{
+		if (e.type == SDL_MOUSEBUTTONDOWN)
+		{
+			if (e.button.clicks == 1)
+			{
 				selectedVertex = get_vertex_at(e.button.x, e.button.y);
-				action = (selectedVertex == -1) ? 0 : 1;
+				action = (selectedVertex == -1) ? ACTION_NOTHING : ACTION_GRAB_VERTEX;
 			}
-			else if(e.button.clicks == 2) {
+			else if(e.button.clicks == 2)
+			{
 				selectedVertex = get_vertex_at(e.button.x, e.button.y);
 				if (selectedVertex == -1)
 				{
@@ -141,9 +191,19 @@ void update(SDL_Event e, int ticks)
 			}
 			
 		}
-		else if (e.type == SDL_MOUSEBUTTONUP) {
-			action = 0;
+		else if (e.type == SDL_MOUSEBUTTONUP)
+		{
+			action = ACTION_NOTHING;
 			selectedVertex = -1;
+		}
+		else if (e.type == SDL_MOUSEMOTION)
+		{
+			if (action == ACTION_GRAB_VERTEX)
+			{
+				gGraph->vertices[selectedVertex].x = e.motion.x;
+				gGraph->vertices[selectedVertex].y = e.motion.y;
+			}
+			
 		}
 	}
 	else if (e.button.button == SDL_BUTTON_RIGHT)
@@ -156,23 +216,22 @@ void update(SDL_Event e, int ticks)
 			mouseFrom.y = e.button.y;
 			selectedVertex = get_vertex_at(mouse.x, mouse.y);
 			
-			action = (selectedVertex != -1) ? 2 : 3;
+			action = (selectedVertex != -1) ? ACTION_DRAW_EDGE : ACTION_SELECT_EDGE; //draw or select
+
+			
 		}
-		else if (SDL_MOUSEBUTTONUP) {
+		else if (e.type == SDL_MOUSEBUTTONUP) {
 			vertex = get_vertex_at(e.button.x, e.button.y);
-			if (action == 2 && vertex != -1)
+			if (action == ACTION_DRAW_EDGE && selectedVertex != -1 && vertex != -1)
 			{
 				append_edge(gGraph, selectedVertex, vertex);
 			}
-			else if(action == 3) {
+			else if(action == ACTION_SELECT_EDGE) {
 				//do cut
 
 				mouse.x = e.button.x;
 				mouse.y = e.button.y;
 
-
-				//v_cut = vector_from_points(mouseFrom, mouse);
-				
 				for (i = 0; i < gGraph->numberOfEdges; i++)
 				{
 					//v_edge = edge_to_vector(i);
@@ -188,31 +247,50 @@ void update(SDL_Event e, int ticks)
 
 					if (is_between(tX1, 0, 1) && is_between(tY1, 0, 1) && is_between(tX2, 0, 1) && is_between(tY2, 0, 1))
 					{
-						delete_edge(gGraph, i);
-						i = 0;
+						selectedEdge = i;
+						//delete_edge(gGraph, i);
+						//i = 0;
 						//break;
 					}
 				}
 			}
 			selectedVertex = -1;
-			action = 0;
+			action = ACTION_NOTHING;
 		}
 	}
 
-	if (e.type == SDL_MOUSEMOTION)
+	if (e.type == SDL_MOUSEMOTION && action == ACTION_DRAW_EDGE)
 	{
-		if (action == 1)
-		{
-			gGraph->vertices[selectedVertex].x = e.motion.x;
-			gGraph->vertices[selectedVertex].y = e.motion.y;
-		}
-		else if (action == 2)
-		{
-			mouse.x = e.motion.x;
-			mouse.y = e.motion.y;
-		}
-		
-		
+		mouse.x = e.motion.x;
+		mouse.y = e.motion.y;
 	}
+
+	if (e.type == SDL_KEYDOWN)
+	{
+		if (e.key.keysym.scancode >= SDL_SCANCODE_1 /* 30 */ && e.key.keysym.scancode < SDL_SCANCODE_0 /* 39 */)
+		{
+			update_weight(e.key.keysym.scancode - 29);
+		}
+		else if (e.key.keysym.scancode == SDL_SCANCODE_0)
+		{
+			update_weight(0);
+		}
+		else if (e.key.keysym.scancode == SDL_SCANCODE_BACKSPACE)
+		{
+			if (selectedEdge != -1)
+			{
+				gGraph->edges[selectedEdge].weight /= 10;
+			}
+		}
+		else if (e.key.keysym.scancode == SDL_SCANCODE_D && selectedEdge != -1)
+		{
+			delete_edge(gGraph, selectedEdge);
+			selectedEdge = -1;
+		}
+		else if (e.key.keysym.scancode == SDL_SCANCODE_R) {
+			action = ACTION_START_POINT;
+		}
+	}
+	
 	
 }

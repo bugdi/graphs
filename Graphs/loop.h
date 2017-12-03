@@ -7,6 +7,7 @@
 
 extern SDL_Window* gWindow;
 extern Graph* gGraph;
+
 extern SDL_Renderer* gRenderer;
 void draw();
 void gameInit();

@@ -1,16 +1,15 @@
 #include "window.h"
 #include "file.h"
 #include "loop.h"
+#include "resource.h"
 
 #include <strsafe.h> /* yeah */
 
-#define ID_NEW 0
-#define ID_OPEN 1
-#define ID_SAVE 2
-#define ID_EXIT 3
+
 
 void create_menu(HWND hwnd)
 {
+	/*
 	HMENU hMenubar = CreateMenu();
 	HMENU hFile = CreateMenu();
 
@@ -19,9 +18,11 @@ void create_menu(HWND hwnd)
 	AppendMenu(hFile, MF_STRING, ID_NEW, "New");
 	AppendMenu(hFile, MF_STRING, ID_OPEN, "Open");
 	AppendMenu(hFile, MF_STRING, ID_SAVE, "Save");
-	AppendMenu(hFile, MF_STRING, ID_EXIT, "Exit");
+	AppendMenu(hFile, MF_STRING, ID_EXIT, "Exit");*/
 
-	SetMenu(hwnd, hMenubar);
+	HMENU hMenu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_MENUSTRIP));
+	//hMenu = GetSubMenu(hMenu, 0);
+	SetMenu(hwnd, hMenu);
 }
 
 void SetWindowTitle(LPSTR lpstrFile, size_t nFileOffset)
@@ -67,6 +68,7 @@ void WindowsOpenGraph(HWND hwnd)
 	if (GetOpenFileName(&ofn) == TRUE)
 	{
 		gGraph = load_graph(ofn.lpstrFile);
+		update_all_edge_text_info();
 		SetWindowTitle(ofn.lpstrFile, ofn.nFileOffset);
 	}
 }
@@ -113,13 +115,13 @@ void window_command(HWND hWnd, WORD lwParam)
 	OPENFILENAME openFileName;
 	switch (lwParam)
 	{
-	case ID_OPEN:
+	case ID_FILE_OPEN:
 		WindowsOpenGraph(hWnd);
 		break;
-	case ID_SAVE:
+	case ID_FILE_SAVE:
 		WindowsSaveGraph(hWnd);
 		break;
-	case ID_EXIT:
+	case ID_FILE_EXIT:
 		exit(0);
 		break;
 	}

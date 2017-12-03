@@ -1,6 +1,7 @@
 #include "graph.h"
 #include <stdarg.h>
 #include <stdlib.h>
+#include "draw.h"
 #include <string.h>
 
 Graph* create_graph(int numOfVertices, int numOfEdges, int flags, ...)
@@ -27,14 +28,19 @@ Graph* create_graph(int numOfVertices, int numOfEdges, int flags, ...)
 	//Edges 
 	va_start(args, flags);
 
+	graph->edgeInfo = NULL;
+
 	for (i = 0; i < numOfEdges; i++)
 	{
 		//Will not work in GCC
 		Edge e = { va_arg(args, int), va_arg(args, int), 0 };
 		graph->edges[i] = e;
+		update_edge_text_info(i);
 	}
 
 	va_end(args);
+
+	//graph->edgeInfo = NULL;
 
 	return graph;
 }
@@ -53,6 +59,7 @@ Edge* create_edges(int numOfEdges, ...)
 		//Will not work in GCC
 		Edge e = { va_arg(args, int), va_arg(args, int), 0 };
 		edges[i] = e;
+		update_edge_text_info(i);
 	}
 
 	va_end(args);
@@ -62,12 +69,14 @@ Edge* create_edges(int numOfEdges, ...)
 void destroy_graph(Graph* graph)
 {
 	free(graph->edges);
+	free(graph->edgeInfo);
+	free(graph->vertices);
 	free(graph);
 }
 
 void append_vertex(Graph* graph, int x, int y)
 {
-	int i;
+	int i; 
 	Vertex* new_vertices = malloc(sizeof(Vertex) * (graph->numberOfVertices + 1));
 
 	//*new_vertices = *graph->vertices;
@@ -87,7 +96,12 @@ void append_vertex(Graph* graph, int x, int y)
 void append_edge(Graph* graph, int v1, int v2)
 {
 	int i;
-	Edge* new_edges = malloc(sizeof(Edge) * (graph->numberOfEdges + 1));
+	Edge* new_edges;
+
+	if (v1 == v2)
+		return;
+
+	new_edges = malloc(sizeof(Edge) * (graph->numberOfEdges + 1));
 
 	//*new_edges = *graph->edges;
 	
@@ -98,29 +112,40 @@ void append_edge(Graph* graph, int v1, int v2)
 
 	new_edges[graph->numberOfEdges].v1 = v1;
 	new_edges[graph->numberOfEdges].v2 = v2;
+	new_edges[graph->numberOfEdges].weight = 0;
 
 	graph->numberOfEdges++;
 
 	free(graph->edges);
 	graph->edges = new_edges;
+
+	create_edge_text_info();
+	
 }
 void delete_edge(Graph* graph, int edge)
 {
 	int i, n = 0;
 	Edge* new_edges = malloc(sizeof(Edge) * (graph->numberOfEdges - 1));
+	EdgeTextInfo* new_edge_text_info = malloc(sizeof(EdgeTextInfo) * (graph->numberOfEdges - 1));
 
 	for (i = 0; i < graph->numberOfEdges; i++)
 	{
 		if (i != edge)
 		{
-			new_edges[n++] = graph->edges[i];
+			new_edges[n] = graph->edges[i];
+			new_edge_text_info[n++] = graph->edgeInfo[i];
+		}
+		else {
+			SDL_DestroyTexture(graph->edgeInfo[i].texture);
 		}
 	}
 
 	graph->numberOfEdges--;
 
 	free(graph->edges);
+	free(graph->edgeInfo);
 	graph->edges = new_edges;
+	graph->edgeInfo = new_edge_text_info;
 }
 
 void delete_edges_of_vertex(Graph* graph, int vertex)
@@ -167,4 +192,9 @@ void delete_vertex(Graph* graph, int vertex)
 
 	free(graph->vertices);
 	graph->vertices = new_vertices;
+}
+
+void set_weight(Graph* graph, int edge, int weight)
+{
+	graph->edges[edge].weight = weight;
 }

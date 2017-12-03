@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SDL.h>
+
 #define GRAPH_WEIGHTED 1
 #define GRAPH_DIRECTED 2
 struct {
@@ -13,12 +15,19 @@ struct {
 	int weight;
 } typedef Edge;
 
+struct {
+	SDL_Texture* texture;
+	SDL_Rect rect;
+	unsigned length;
+} typedef EdgeTextInfo;
+
 
 struct {
 	int numberOfVertices;
 	int numberOfEdges;
 	Vertex* vertices;
 	Edge* edges;
+	EdgeTextInfo* edgeInfo;
 	int flags;
 } typedef Graph;
 
