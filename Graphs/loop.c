@@ -290,6 +290,7 @@ void update(SDL_Event e, int ticks)
 			if (selectedEdge != -1)
 			{
 				gGraph->edges[selectedEdge].weight /= 10;
+				update_edge_text_info(selectedEdge);
 			}
 		}
 		else if (e.key.keysym.scancode == SDL_SCANCODE_D && selectedEdge != -1)

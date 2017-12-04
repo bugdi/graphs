@@ -32,6 +32,7 @@ int create_edge_text_info()
 	gGraph->edgeInfo = new_edge_info;
 
 	gGraph->edgeInfo[gGraph->numberOfEdges - 1].texture = NULL;
+	gGraph->edgeInfo[gGraph->numberOfEdges - 1].highlight = 0;
 
 	update_edge_text_info(gGraph->numberOfEdges - 1);
 
@@ -74,14 +75,10 @@ int update_edge_text_info(int i)
 
 	gGraph->edgeInfo[i].rect.w = textSurface->w;
 	gGraph->edgeInfo[i].rect.h = textSurface->h;
-
+	gGraph->edgeInfo[i].highlight = 0;
 	SDL_FreeSurface(textSurface);
 
 	return 1;
-}
-int create_text_texture(const char* text, SDL_Texture **texture, SDL_Rect* rect)
-{
-	
 }
 
 void draw_text(int x, int y, const char* text)
@@ -126,48 +123,6 @@ void fill_circle(int x, int y, int radius, int r, int g, int b, int a)
 			{
 				SDL_RenderDrawPoint(gRenderer, x + dx, y + dy);
 			}
-		}
-	}
-}
-
-
-void draw_circle(int x0, int y0, int radius)
-{
-	int x = radius - 1;
-	int y = 0;
-	int dx = 1;
-	int dy = 1;
-	int err = dx - (radius << 1);
-
-	while (x >= y)
-	{
-		//putpixel(x0 + x, y0 + y);
-		SDL_RenderDrawPoint(gRenderer, x0 + x, y0 + y);
-		//putpixel(x0 + y, y0 + x);
-		SDL_RenderDrawPoint(gRenderer, x0 + y, y0 + x);
-		//putpixel(x0 - y, y0 + x);
-		SDL_RenderDrawPoint(gRenderer, x0 - y, y0 + x);
-		//putpixel(x0 - x, y0 + y);
-		SDL_RenderDrawPoint(gRenderer, x0 - x, y0 + y);
-		//putpixel(x0 - x, y0 - y);
-		SDL_RenderDrawPoint(gRenderer, x0 - x, y0 - y);
-		//putpixel(x0 - y, y0 - x);
-		SDL_RenderDrawPoint(gRenderer, x0 - y, y0 - x);
-		//putpixel(x0 + y, y0 - x);
-		SDL_RenderDrawPoint(gRenderer, x0 + y, y0 - x);
-		//putpixel(x0 + x, y0 - y);
-		SDL_RenderDrawPoint(gRenderer, x0 + x, y0 - y);
-		if (err <= 0)
-		{
-			y++;
-			err += dy;
-			dy += 2;
-		}
-		if (err > 0)
-		{
-			x--;
-			dx += 2;
-			err += (-radius << 1) + dx;
 		}
 	}
 }

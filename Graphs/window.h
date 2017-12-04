@@ -5,8 +5,4 @@
 
 //int init_window(SDL_Window* window);
 
-void create_menu(HWND hWnd);
-
-void menu_command(HWND hwnd, WORD lwParam);
-
 #endif

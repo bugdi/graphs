@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "window.h"
 #include "file.h"
 #include "loop.h"

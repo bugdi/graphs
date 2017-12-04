@@ -3,7 +3,7 @@
 #include <SDL.h>
 
 #define GRAPH_WEIGHTED 1
-#define GRAPH_DIRECTED 2
+//#define GRAPH_DIRECTED 2
 struct {
 	int x;
 	int y;
