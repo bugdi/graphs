@@ -10,7 +10,6 @@ TTF_Font* gFont;
 
 int load_global_font(const char* path)
 {
-	//SDL_Texture *texture;
 	if (TTF_Init() == -1)
 		return 0;
 
@@ -22,8 +21,6 @@ int create_edge_text_info()
 {
 	int i;
 	EdgeTextInfo* new_edge_info = malloc(sizeof(EdgeTextInfo) * (gGraph->numberOfEdges));
-
-	//*new_edges = *graph->edges;
 
 	for (i = 0; i < gGraph->numberOfEdges - 1; i++)
 	{
@@ -57,7 +54,6 @@ int update_edge_text_info(int i)
 	char buffer[5];
 
 	memset(buffer, 0, 5);
-	//SDL_itoa(gGraph->edges[i].weight, digit_buffer, 10);
 
 	sprintf_s(buffer, 5, "%d", gGraph->edges[i].weight);
 
@@ -81,12 +77,6 @@ int update_edge_text_info(int i)
 
 	SDL_FreeSurface(textSurface);
 
-
-
-	//SDL_RenderCopy(gRenderer, texture, NULL, &rect);
-
-	//SDL_DestroyTexture(texture);
-
 	return 1;
 }
 int create_text_texture(const char* text, SDL_Texture **texture, SDL_Rect* rect)
@@ -96,7 +86,6 @@ int create_text_texture(const char* text, SDL_Texture **texture, SDL_Rect* rect)
 
 void draw_text(int x, int y, const char* text)
 {
-	//return;
 	int width, height;
 	SDL_Texture *texture;
 	SDL_Color textColor = { 0, 0, 0 };

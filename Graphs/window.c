@@ -5,7 +5,8 @@
 
 #include <strsafe.h> /* yeah */
 
-
+int file_open = 0;
+char current_path[MAX_PATH];
 
 void create_menu(HWND hwnd)
 {
@@ -33,6 +34,7 @@ void SetWindowTitle(LPSTR lpstrFile, size_t nFileOffset)
 	newWindowTitle = (LPSTR)malloc(sizeof(CHAR) * (fileNameLength + 10));
 
 	StringCchCopy(newWindowTitle, (fileNameLength + 10), &lpstrFile[nFileOffset]);
+
 	StringCchCat(newWindowTitle, (fileNameLength + 10), " - Graph");
 
 	SDL_SetWindowTitle(gWindow, newWindowTitle);
@@ -68,6 +70,8 @@ void WindowsOpenGraph(HWND hwnd)
 	if (GetOpenFileName(&ofn) == TRUE)
 	{
 		gGraph = load_graph(ofn.lpstrFile);
+		strcpy(current_path, ofn.lpstrFile);
+		file_open = 1;
 		update_all_edge_text_info();
 		SetWindowTitle(ofn.lpstrFile, ofn.nFileOffset);
 	}
@@ -104,6 +108,8 @@ void WindowsSaveGraph(HWND hwnd)
 	if (GetSaveFileName(&ofn) == TRUE)
 	{
 		save_graph(gGraph, ofn.lpstrFile);
+		file_open = 1;
+		strcpy(current_path, ofn.lpstrFile);
 		SetWindowTitle(ofn.lpstrFile, ofn.nFileOffset);
 	}
 }
@@ -119,6 +125,12 @@ void window_command(HWND hWnd, WORD lwParam)
 		WindowsOpenGraph(hWnd);
 		break;
 	case ID_FILE_SAVE:
+		if(file_open)
+			save_graph(gGraph, current_path);
+		else
+			WindowsSaveGraph(hWnd);
+		break;
+	case ID_FILE_SAVEAS:
 		WindowsSaveGraph(hWnd);
 		break;
 	case ID_FILE_EXIT:

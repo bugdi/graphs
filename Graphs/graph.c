@@ -14,6 +14,7 @@ Graph* create_graph(int numOfVertices, int numOfEdges, int flags, ...)
 
 	graph->numberOfVertices = numOfVertices;
 	graph->numberOfEdges = numOfEdges;
+
 	graph->vertices = (Vertex*)malloc(sizeof(Vertex) * numOfVertices);
 	graph->edges = (Edge*)malloc(sizeof(Edge) * numOfEdges);
 
@@ -39,8 +40,6 @@ Graph* create_graph(int numOfVertices, int numOfEdges, int flags, ...)
 	}
 
 	va_end(args);
-
-	//graph->edgeInfo = NULL;
 
 	return graph;
 }

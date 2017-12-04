@@ -10,8 +10,6 @@
 
 int save_graph(Graph* graph, const char* path)
 {
-	//byte order!!!!
-
 	FILE * file = fopen(path, "wb");
 	if (file == NULL)
 		return 0;

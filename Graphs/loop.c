@@ -5,6 +5,7 @@
 #include "file.h"
 #include <string.h>
 #include <stdio.h>
+#include "algorithms.h"
 //#include <SDL_ttf.h>
 //#include <SDL.h>
 #define VERTEX_RADIUS 6.0
@@ -16,23 +17,14 @@ Graph* gGraph = NULL;
 int selectedVertex = -1;
 int selectedEdge = -1;
 int lastAddedEdge = -1;
-int selectedVertexAlgorithm1;
+int selectedVertexAlgorithm1 = -1, selectedVertexAlgorithm2 = -1;
 
 #define ACTION_NOTHING 0
 #define ACTION_GRAB_VERTEX 1
 #define ACTION_DRAW_EDGE 2
 #define ACTION_SELECT_EDGE 3
 #define ACTION_START_POINT 5
-
-/*
-	actions:
-		0: nothing
-		1: grab vertex
-		2: draw line
-		3: select edge ('cutting')
-		4: set weight (not used)
-		5: select startpoint for algorithm
-*/
+#define ACTION_END_POINT 6
 int action = 0;
 Vector2i mouse;
 Vector2i mouseFrom;
@@ -41,28 +33,16 @@ Vector2i mouseFrom;
 void gameInit()
 {
 	gGraph = create_graph(0, 0, 0);
-	//gGraph = load_graph("output.gph");
+	//gGraph = load_graph("E:\\Marci\\Documents\\test_dijkstra.gph");
+	update_all_edge_text_info();
+	gGraph->flags |= GRAPH_WEIGHTED;
 }
 void gameClose()
 {
-	//save_graph(gGraph, "output.gph");
 	destroy_graph(gGraph);
 }
-Vector2i vertex_to_vector(Vertex v)
-{
-	Vector2i vect = { v.x, v.y };
-	return vect;
-}
-Vector2i edge_to_vector(int i)
-{
-	Vector2i vect = { gGraph->vertices[gGraph->edges[i].v2].x - gGraph->vertices[gGraph->edges[i].v1].x, gGraph->vertices[gGraph->edges[i].v2].y - gGraph->vertices[gGraph->edges[i].v1].y };
-	return vect;
-}
-Vector2i vector_from_vertex_and_vector(Vertex a, Vector2i b)
-{
-	Vector2i vect = { b.x - a.x, b.y - a.y };
-	return vect;
-}
+
+
 int is_between(double num, double min, double max)
 {
 	return (num > min && num < max);
@@ -72,9 +52,7 @@ void draw()
 	int i;
 	double middle_x;
 	double middle_y;
-	//double delta;
 	int length = 3;
-	//char digit_buffer[WEIGHT_NUM_DIGITS];
 	Vertex v1, v2;
 
 	SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF); //black
@@ -84,27 +62,28 @@ void draw()
 	{
 		v1 = gGraph->vertices[gGraph->edges[i].v1];
 		v2 = gGraph->vertices[gGraph->edges[i].v2];
-		if (selectedEdge == i)
+		if (gGraph->edgeInfo[i].highlight)
+		{
+			SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0xFF, 0xFF);
+			SDL_RenderDrawLine(gRenderer, v1.x, v1.y, v2.x, v2.y);
+			SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
+		} else if (selectedEdge == i)
 		{
 			SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
 			SDL_RenderDrawLine(gRenderer, v1.x, v1.y, v2.x, v2.y);
 			SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
 		}
-		else {
+		else
+		{
 			SDL_RenderDrawLine(gRenderer, v1.x, v1.y, v2.x, v2.y);
 		}
 		if (gGraph->flags & GRAPH_WEIGHTED )
 		{
 			middle_x = (v1.x + v2.x) / 2;
 			middle_y = (v1.y + v2.y) / 2;
-
-
 			gGraph->edgeInfo[i].rect.x = middle_x - (gGraph->edgeInfo[i].length - 1) * 18;
 			gGraph->edgeInfo[i].rect.y = middle_y - 20;
 			SDL_RenderCopy(gRenderer, gGraph->edgeInfo[i].texture, NULL, &gGraph->edgeInfo[i].rect);
-
-			
-			//draw_text(middle_x - (length - 1) * 18, middle_y - 20, digit_buffer);
 		}
 	}
 
@@ -112,7 +91,10 @@ void draw()
 	//draw vertexes
 	for (i = 0; i < gGraph->numberOfVertices; i++)
 	{
-		if (i == selectedVertex)
+		if (i == selectedVertexAlgorithm1 || i == selectedVertexAlgorithm2)
+		{
+			fill_circle(gGraph->vertices[i].x, gGraph->vertices[i].y, VERTEX_RADIUS, 0xFF, 0xFF, 0x00, 0xFF);
+		} else if (i == selectedVertex)
 		{
 			fill_circle(gGraph->vertices[i].x, gGraph->vertices[i].y, VERTEX_RADIUS, 0xFF, 0x00, 0x00, 0xFF);
 		}
@@ -159,7 +141,15 @@ void update_weight(int input)
 		update_edge_text_info(selectedEdge);
 	}
 }
+void remove_hightlight()
+{
+	int i = 0;
 
+	for (i = 0; i < gGraph->numberOfEdges; i++)
+	{
+		gGraph->edgeInfo[i].highlight = 0;
+	}
+}
 void update(SDL_Event e, int ticks)
 {
 	
@@ -174,8 +164,35 @@ void update(SDL_Event e, int ticks)
 		{
 			if (e.button.clicks == 1)
 			{
-				selectedVertex = get_vertex_at(e.button.x, e.button.y);
-				action = (selectedVertex == -1) ? ACTION_NOTHING : ACTION_GRAB_VERTEX;
+				if (action == ACTION_START_POINT)
+				{
+					selectedVertex = get_vertex_at(e.button.x, e.button.y);
+					if (selectedVertex != -1)
+					{
+						selectedVertexAlgorithm1 = selectedVertex;
+						action = ACTION_END_POINT;
+					}
+					else {
+						action = ACTION_NOTHING;
+					}
+					
+				}
+				else if(action == ACTION_END_POINT) {
+					selectedVertex = get_vertex_at(e.button.x, e.button.y);
+					selectedVertexAlgorithm2 = selectedVertex;
+					if (selectedVertex != -1)
+					{
+						remove_hightlight();
+						run_dijkstra(gGraph, selectedVertexAlgorithm1, selectedVertexAlgorithm2);
+					}
+					action = ACTION_NOTHING;
+				}
+				else {
+					selectedVertex = get_vertex_at(e.button.x, e.button.y);
+					action = (selectedVertex == -1) ? ACTION_NOTHING : ACTION_GRAB_VERTEX;
+					//printf("Grabed vertex: %d\n", selectedVertex);
+				}
+				
 			}
 			else if(e.button.clicks == 2)
 			{
@@ -193,13 +210,15 @@ void update(SDL_Event e, int ticks)
 		}
 		else if (e.type == SDL_MOUSEBUTTONUP)
 		{
-			action = ACTION_NOTHING;
+			if(action != ACTION_END_POINT)
+				action = ACTION_NOTHING;
 			selectedVertex = -1;
 		}
 		else if (e.type == SDL_MOUSEMOTION)
 		{
 			if (action == ACTION_GRAB_VERTEX)
 			{
+				
 				gGraph->vertices[selectedVertex].x = e.motion.x;
 				gGraph->vertices[selectedVertex].y = e.motion.y;
 			}
@@ -215,10 +234,7 @@ void update(SDL_Event e, int ticks)
 			mouseFrom.x = e.button.x;
 			mouseFrom.y = e.button.y;
 			selectedVertex = get_vertex_at(mouse.x, mouse.y);
-			
 			action = (selectedVertex != -1) ? ACTION_DRAW_EDGE : ACTION_SELECT_EDGE; //draw or select
-
-			
 		}
 		else if (e.type == SDL_MOUSEBUTTONUP) {
 			vertex = get_vertex_at(e.button.x, e.button.y);
@@ -227,14 +243,11 @@ void update(SDL_Event e, int ticks)
 				append_edge(gGraph, selectedVertex, vertex);
 			}
 			else if(action == ACTION_SELECT_EDGE) {
-				//do cut
-
 				mouse.x = e.button.x;
 				mouse.y = e.button.y;
 
 				for (i = 0; i < gGraph->numberOfEdges; i++)
 				{
-					//v_edge = edge_to_vector(i);
 					v1 = gGraph->vertices[gGraph->edges[i].v1];
 					v2 = gGraph->vertices[gGraph->edges[i].v2];
 				
@@ -248,9 +261,6 @@ void update(SDL_Event e, int ticks)
 					if (is_between(tX1, 0, 1) && is_between(tY1, 0, 1) && is_between(tX2, 0, 1) && is_between(tY2, 0, 1))
 					{
 						selectedEdge = i;
-						//delete_edge(gGraph, i);
-						//i = 0;
-						//break;
 					}
 				}
 			}
@@ -289,8 +299,7 @@ void update(SDL_Event e, int ticks)
 		}
 		else if (e.key.keysym.scancode == SDL_SCANCODE_R) {
 			action = ACTION_START_POINT;
+			//run_dijkstra(gGraph, 0, 3);
 		}
 	}
-	
-	
 }

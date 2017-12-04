@@ -1,6 +1,5 @@
 #include <SDL.h>
 #include <stdio.h>
-//#include <SDL_image.h>
 #include <SDL_syswm.h>
 #include "resource.h"
 
@@ -60,11 +59,6 @@ int init()
 	return TRUE;
 }
 
-int loadMedia()
-{
-	//texture = loadTexture(gRenderer, "C:\\Users\\Marci\\source\\repos\\IntroToSDL\\redball.png");
-	return TRUE;
-}
 
 SDL_Surface* loadSurface(const char* path)
 {
@@ -95,9 +89,6 @@ SDL_Surface* loadSurface(const char* path)
 
 void close()
 {
-	//Deallocate surface
-	//SDL_FreeSurface(gHelloWorld);
-	//gHelloWorld = NULL;
 
 	//Destroy window
 	SDL_DestroyWindow(gWindow);
@@ -147,11 +138,6 @@ int main(int argc, char** argv)
 	if (!init())
 	{
 		printf("Failed to initialize!\n");
-		return 1;
-	}
-	if (!loadMedia())
-	{
-		printf("Failed to load media!\n");
 		return 1;
 	}
 	lastTicks = SDL_GetTicks();
