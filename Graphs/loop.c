@@ -221,6 +221,9 @@ void update(SDL_Event e, int ticks)
 				
 				gGraph->vertices[selectedVertex].x = e.motion.x;
 				gGraph->vertices[selectedVertex].y = e.motion.y;
+				selectedVertexAlgorithm1 = -1;
+				selectedVertexAlgorithm2 = -1;
+				remove_hightlight();
 			}
 			
 		}
