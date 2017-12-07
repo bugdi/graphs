@@ -44,26 +44,6 @@ Graph* create_graph(int numOfVertices, int numOfEdges, int flags, ...)
 	return graph;
 }
 
-Edge* create_edges(int numOfEdges, ...)
-{
-	va_list args;
-	//Edges 
-	int i;
-	va_start(args, numOfEdges);
-
-	Edge* edges = malloc(sizeof(Edge) * numOfEdges);
-
-	for (int i = 0; i < numOfEdges; i++)
-	{
-		//Will not work in GCC
-		Edge e = { va_arg(args, int), va_arg(args, int), 0 };
-		edges[i] = e;
-		update_edge_text_info(i);
-	}
-
-	va_end(args);
-	return edges;
-}
 
 void destroy_graph(Graph* graph)
 {
@@ -191,9 +171,4 @@ void delete_vertex(Graph* graph, int vertex)
 
 	free(graph->vertices);
 	graph->vertices = new_vertices;
-}
-
-void set_weight(Graph* graph, int edge, int weight)
-{
-	graph->edges[edge].weight = weight;
 }

@@ -60,32 +60,7 @@ int init()
 }
 
 
-SDL_Surface* loadSurface(const char* path)
-{
-	//The final optimized image
-	SDL_Surface* optimizedSurface = NULL;
 
-	//Load image at specified path
-	SDL_Surface* loadedSurface = SDL_LoadBMP(path);
-	if (loadedSurface == NULL)
-	{
-		printf("Unable to load image %s! SDL Error: %s\n", path, SDL_GetError());
-	}
-	else
-	{
-		//Convert surface to screen format
-		optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, NULL);
-		if (optimizedSurface == NULL)
-		{
-			printf("Unable to optimize image %s! SDL Error: %s\n", path, SDL_GetError());
-		}
-
-		//Get rid of old loaded surface
-		SDL_FreeSurface(loadedSurface);
-	}
-
-	return optimizedSurface;
-}
 
 void close()
 {
@@ -96,41 +71,6 @@ void close()
 	
 	//Quit SDL subsystems
 	SDL_Quit();
-}
-int my_main(int* quit, int ticks)
-{
-	SDL_Event e;
-	//e.type = SDL_CREATE
-	while (SDL_PollEvent(&e) != 0)
-	{
-		//User requests quit
-		if (e.type == SDL_QUIT)
-		{
-			*quit = 1;
-		}
-		else if (e.type == SDL_SYSWMEVENT) {
-			
-			switch (e.syswm.msg->msg.win.msg)
-			{
-				case WM_CREATE: 
-					create_menu(e.syswm.msg->msg.win.hwnd);
-					break;
-
-				case WM_COMMAND:
-					window_command(e.syswm.msg->msg.win.hwnd, LOWORD(e.syswm.msg->msg.win.wParam));
-					break;
-			}
-	
-		}
-		else {
-			update(e, ticks);
-		}
-		//Update the surface
-		SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-		SDL_RenderClear(gRenderer);
-		draw();
-		SDL_RenderPresent(gRenderer);
-	}
 }
 int main(int argc, char** argv)
 {
@@ -145,9 +85,38 @@ int main(int argc, char** argv)
 	gameInit();
 	while (!quit)
 	{
-		ticks = SDL_GetTicks();
-		my_main(&quit, ticks - lastTicks);
-		lastTicks = ticks;
+		SDL_Event e;
+		//e.type = SDL_CREATE
+		while (SDL_PollEvent(&e) != 0)
+		{
+			//User requests quit
+			if (e.type == SDL_QUIT)
+			{
+				quit = 1;
+				break;
+			}
+			else if (e.type == SDL_SYSWMEVENT) {
+
+				switch (e.syswm.msg->msg.win.msg)
+				{
+				case WM_CREATE:
+					create_menu(e.syswm.msg->msg.win.hwnd);
+					break;
+
+				case WM_COMMAND:
+					window_command(e.syswm.msg->msg.win.hwnd, LOWORD(e.syswm.msg->msg.win.wParam));
+					break;
+				}
+
+			}
+			else {
+				update(e);
+			}
+			SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+			SDL_RenderClear(gRenderer);
+			draw();
+			SDL_RenderPresent(gRenderer);
+		}
 	}
 	
 	gameClose();

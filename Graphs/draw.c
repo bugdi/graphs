@@ -81,35 +81,6 @@ int update_edge_text_info(int i)
 	return 1;
 }
 
-void draw_text(int x, int y, const char* text)
-{
-	int width, height;
-	SDL_Texture *texture;
-	SDL_Color textColor = { 0, 0, 0 };
-	SDL_Rect rect = { x, y, 0, 0 };
-
-	SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, text, textColor);
-
-	if (textSurface == NULL)
-		return 0;
-
-
-	texture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
-
-	if (texture == NULL)
-		return 0;
-	rect.w = textSurface->w;
-	rect.h = textSurface->h;
-
-	SDL_FreeSurface(textSurface);
-
-	SDL_RenderCopy(gRenderer, texture, NULL, &rect);
-
-	SDL_DestroyTexture(texture);
-
-}
-
-
 void fill_circle(int x, int y, int radius, int r, int g, int b, int a)
 {
 	SDL_SetRenderDrawColor(gRenderer, r, g, b, a);

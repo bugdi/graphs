@@ -4,6 +4,14 @@
 
 #include <stdio.h>
 
+#define IS_ENDLESS(row, column) dist[(row * columns) + column].is_endless
+#define GET_DIST(row, column) dist[(row * columns) + column].distance
+#define COPY_DIST_ABOVE(row, column) dist[(row * columns) + column].is_endless = dist[((row - 1) * columns) + column].is_endless; dist[(row * columns) + column].distance = dist[((row - 1) * columns) + column].distance; dist[(row * columns) + column].last_vertex = dist[((row - 1) * columns) + column].last_vertex
+#define SET_DIST(row, column, val) dist[(row * columns) + column].is_endless = 0; dist[row * (columns) + column].distance = val
+#define SET_DIST_ENDLESS(row, column) dist[(row * columns) + column].is_endless = 1
+#define SET_LAST_VERTEX(row, column, val) dist[(row * columns) + column].is_endless = 0; dist[row * (columns) + column].last_vertex = val;
+#define GET_LAST_VERTEX(row, column) dist[row * (columns) + column].last_vertex
+
 struct vertex_set {
 	int vertex;
 	struct vertex_set* next;
@@ -15,13 +23,6 @@ struct dist_item {
 	int is_endless;
 } typedef dist_item_t;
 
-#define IS_ENDLESS(row, column) dist[(row * columns) + column].is_endless
-#define GET_DIST(row, column) dist[(row * columns) + column].distance
-#define COPY_DIST_ABOVE(row, column) dist[(row * columns) + column].is_endless = dist[((row - 1) * columns) + column].is_endless; dist[(row * columns) + column].distance = dist[((row - 1) * columns) + column].distance; dist[(row * columns) + column].last_vertex = dist[((row - 1) * columns) + column].last_vertex
-#define SET_DIST(row, column, val) dist[(row * columns) + column].is_endless = 0; dist[row * (columns) + column].distance = val
-#define SET_DIST_ENDLESS(row, column) dist[(row * columns) + column].is_endless = 1
-#define SET_LAST_VERTEX(row, column, val) dist[(row * columns) + column].is_endless = 0; dist[row * (columns) + column].last_vertex = val;
-#define GET_LAST_VERTEX(row, column) dist[row * (columns) + column].last_vertex
 
 int in_set(vertex_set_t* set, int vertex)
 {

@@ -2,12 +2,14 @@
 
 Dieses Program ist meine große Hausaufgabe für das Lehrfach 'Grundlagen der Programmierung'.
 
-Ich habe die sogenanntes Dijkstra algorithmus implementiert, und auch eine Program mit graphisches Benutzeroberfläche geschrieben, damit man die Graphen zeichnen kann. Die programm ist in C geschrieben.
+Ich habe den Dijkstra-Algorithmus implementiert, und auch eine Program mit graphisches Benutzeroberfläche geschrieben, damit man eine Graph zeichnen kann. Die programm wurde in C geschrieben.
 
-# Dokumentazion für Benutzer
-Die Graphen können sehr einfach gezeichnet werden.
+Dieses Projekt ist auf [Github](https://github.com/bugdi/graphs) aufgeladet.
 
-eine linke Maustaste addiert eine neue Knote, und die doppelte linke Maustaste löscht die Kante unter dem Kursor
+# Dokumentazion für den Benutzer
+Die Graphen können sehr einfach gezeichnet werden:
+
+eine linke Maustaste addiert eine neue Knote, und die doppelte linke Maustaste löscht die Knote unter dem Kursor
 
 Zwei Kanten können mit rechte Maustaste verbindet verden. Um eine Kante zu wählen soll man die Kante mit rechte Maustaste kreuzen. Die Koste der Kante kann mit Tippen an der Tastatur modifiziert werden. Der Knopf `d` löscht die gewählte Kante.
 
@@ -21,29 +23,52 @@ Die Graphen können im Menu 'File' gespeichert werden können.
 
 ![Screenshot3](screenshot3.png)
 
-# Dokumentazion für Programmierer
+# Dokumentazion für die Programmierer
 
 Filestruktur
 
-Name       | Funkzion
------      | -----
-algorithms | Implementazion von Dijkstra 
-draw       | SDL, Zeichnung
-file       | Filemanagement
-graph      | Implementazion von den Graphen 
-loop       | 'Spiele-Schleifen' 
-main.c | Eintrittspunkt, Initalizierung
+Name        | Funkzion
+-----       | -----
+algorithms  | Implementazion von Dijkstra 
+draw        | SDL, Zeichnung
+file        | Filemanagement
+graph       | Implementazion von den Graphen 
+loop        | 'main loop'
+main.c      | Eintrittspunkt, Initalizierung
 vector_math | Hilfsfunkzionen für Vector-Arthimetik
-window  | WIN32 API
+window      | WIN32 API
 
-## algoritmus.h
+## algoritmus
+
+```c
+struct vertex_set {
+	int vertex;
+	struct vertex_set* next;
+} typedef vertex_set_t;
+```
+Diese Struktur bildet in eine verkettete Liste, und wird als eine Menge von Knoten benutzt
+
+```c
+struct dist_item {
+	int distance;
+	int last_vertex;
+	int is_endless;
+} typedef dist_item_t;
+```
+Beim Algorithmus von Dijkstra wird eine Tabelle hergestellt, die die Distanz von dem Startpunkt enthält. Diese Struktur bildet eine Zelle von dieser Tabelle.
+
+```c
+int in_set(vertex_set_t* set, int vertex);
+```
+Testet ob die Knote `vertex` in der Menge `set` ist.
+
 
 ```c
 void run_dijkstra(Graph* graph, int start, int end);
 ```
-läuft den Algorithmus auf den Graph `graph` und zeigt die kürzeste Weg von `start` bis `end`
+Läuft den Algorithmus auf den Graph `graph` und zeigt die kürzeste Weg von `start` bis `end`
 
-## draw.h
+## draw
 
 ```c
 void fill_circle(int x, int y, int radius, int r, int g, int b, int a);
@@ -56,16 +81,11 @@ int load_global_font(const char* path);
 Festgelegt die benutzte Schrifttyp
 
 ```c
-void draw_text(int x, int y, const char* text);
-```
-Schreibt auf den Bildschirm
-
-```c
 int create_edge_text_info();
-int update_edge_text_info(int);
+int update_edge_text_info(int edge);
 int update_all_edge_text_info();
 ```
-Erschafft/updatet Informazionen die wichtig sind um eine/alle Kante zu zeigen
+Erschafft/updatet Informazionen die wichtig sind um eine/alle Kante zu zeichnen (zB Textur)
 
 ## file.h
 
@@ -122,11 +142,11 @@ struct {
 Definiert eine Graph
 
 ```c
-Graph* create_graph(int numOfVertices, int numOfEdges, int flags, ...);
+Graph* create_graph(int numOfVertices, int numOfEdges, int flags, ... /* edges*/ );
 ```
 Herstellt eine Graph mit `numOfVertices` Knoten, `numOfEdges` Kanten.
 `flag` ist nicht benutzt.
-Die Kanten werden zwischen die Knoten, die als Argument gegeben werden sein.
+Die Kanten werden zwischen die Knoten, die als Argument gegeben werden.
 
 ```c
 void destroy_graph(Graph* graph);
@@ -153,7 +173,12 @@ void delete_edge(Graph* graph, int edge);
 ```
 Löscht eine Kante vom Graph
 
-## loop.h
+```c
+void delete_edges_of_vertex(Graph* graph, int vertex)
+```
+Löscht alle Kanten der Knote `vertex` in Graph `graph`
+
+## loop
 
 ```c
 extern SDL_Window* gWindow;
@@ -186,11 +211,54 @@ void gameClose();
 Schließt die Program
 
 ```c
-void update(SDL_Event e, int ticks);
+void update(SDL_Event e);
 ```
 Handelt die Benutzerinput
 
-## vector_math.h
+```c
+int is_between(double num, double min, double max);
+```
+Testet ob `num` ist zwischen `min` und `max`.
+
+```c
+double distance(int x0, int y0, int x1, int y1);
+```
+Gibt zurüch die Distanz zwischen de Punkt (`x0`, `y0`) und (`x1`, `y1`)
+
+```c
+Vector2d intersect_vertex_and_vector(Vertex a, Vertex b, Vector2i c, Vector2i d);
+```
+Kalkuliert den Schnitt einer Knote und einer Vektor
+
+```c
+void update_weight(int input)
+```
+Handelt die Eingabe der Kosten einer Kante
+
+```c
+void remove_hightlight()
+```
+Löscht die Markierung der kürzesten Weg
+
+## main
+
+```c
+int init()
+```
+Initaliziert SDL
+
+```c
+void close()
+```
+Uninitaliziert SDL
+
+```c
+int main(int argc, char** argv)
+```
+Eintrittspunkt des Programs
+
+
+## vector_math
 
 ```c
 struct {

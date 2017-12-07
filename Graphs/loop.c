@@ -150,7 +150,7 @@ void remove_hightlight()
 		gGraph->edgeInfo[i].highlight = 0;
 	}
 }
-void update(SDL_Event e, int ticks)
+void update(SDL_Event e)
 {
 	
 	int i;
